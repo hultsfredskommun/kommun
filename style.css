@@ -1,0 +1,70 @@
+/*
+Theme Name: www.hultsfred.se (child of Hultsfreds kommun theme)
+Theme URI: 
+Author: the Hultsfred team
+Author URI: http://wordpress.org/
+Description: Child of Hultsfredskommun theme
+Version: 0.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tags: 
+Text Domain: hultsfredskommun
+Template: hultsfredskommun
+*/
+
+@import url("../hultsfredskommun/style.css");
+
+ /* =Responsive Structure
+----------------------------------------------- */
+
+/* LOW */
+@media (max-height: 1000px) {
+
+}
+
+
+/* LARGE */
+@media (max-width: 1000px) {
+
+}
+
+/* BETWEEN MEDIUM AND LARGE */
+
+@media (max-width: 900px) {
+
+}
+
+
+/* MEDIUM */
+
+@media (max-width: 800px) {
+
+}
+
+
+/* BETWEEN SMALL AND MEDIUM */
+
+@media (max-width: 750px) {
+
+}
+
+
+/* SMALL */
+
+@media (max-width: 650px) {
+
+}
+
+
+/* MOBIL */
+
+@media (max-width: 480px) {
+
+}
+
+
+
+
+@media print {
+
+}
