@@ -20,11 +20,14 @@ ul.search-tele {
 	clear: both;
 	float: left;
 }
+#searchresult ul.search-tele li.search-title {
+	padding-left: 0;
+}
 ul.search-tele li {
 	padding: 8px 0px;
 	clear: both;
 }
-ul.search-tele li span.workplace {
+ul.search-tele li span.name {
 	font-weight: bold;
 }
 
