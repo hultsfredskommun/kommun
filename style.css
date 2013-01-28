@@ -14,17 +14,21 @@ Template: hultsfredskommun
 
 @import url("../hultsfredskommun/style.css");
 
+#primary ul.search-tele {
+	padding-left: 2px;
+}
+#primary ul.search-tele h1.entry-title {
+	padding: 0 0 0 8px;
+}
 ul.search-tele {
+	width: 100%;
 	margin: 0;
-	padding: 2px 10px 20px;
+	padding: 0 0 10px;
 	clear: both;
 	float: left;
 }
-#searchresult ul.search-tele li.search-title {
-	padding-left: 0;
-}
 ul.search-tele li {
-	padding: 8px 0px;
+	padding: 8px 0;
 	clear: both;
 }
 ul.search-tele li span.name {
@@ -38,7 +42,7 @@ ul.search-tele li span.visitaddress {
 	clear: left;
 }
 ul.search-tele li span {
-	margin-right: 8px;
+	margin-left: 8px;
 	float: left;
 }
 
