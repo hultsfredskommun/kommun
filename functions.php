@@ -1,18 +1,22 @@
 <?php
 
-/* get tele search hits */
+/* do the tele search */
 function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
-	if ($host != "" && $user != "" && $pwd != "" && $select != "")
+	// error check
+	if ($host != "" && $user != "" && $db != "" && $pwd != "" && $select != "")
 		return array("name" => 'Kan inte kontakta teledatabasen utan r&auml;tt uppgifter.');
 	if (!function_exists("mssql_connect"))
 		return array("name" => 'Det m&aring;ste finnas mssql i PHP f&ouml;r s&ouml;ka i teledatabasen.');
+	
+	// try to connect
 	$link = mssql_connect($host, $user, $pwd);
 	if (!$link) {
 		return array('Kunde inte kontakta teledatabasen.', mysql_error(),"","");
 	}
 
 	mssql_select_db($db);
-	/* get hits */
+	
+	// do the search
 	$select = "SELECT * FROM entire_directory WHERE " .
 	"name LIKE '%$search%' OR " .
 	"title LIKE '%$search%' OR " .
@@ -22,6 +26,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	
 	$result = mssql_query($select);
 	$count = 1;
+	// make array to return
 	while ($row = mssql_fetch_assoc($result)) {
 		if ($num_hits > 0 && $num_hits < $count++)
 			break;
@@ -38,23 +43,28 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 /* add tele search in ajax dropdown */
 function hk_pre_ajax_search_function($search) {
 	$options = get_option("hk_theme");
+	
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 5);
+	
+	// echo if hits found
 	if (count($hits) > 0) :
-	echo "<ul class='search-tele'>";
-	echo "<li class='search-title'>Kontakter</li>";
-	foreach($hits as $hit) {
-		if ($hit["name"] == "more") {
-			echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+		echo "<ul class='search-tele'>";
+		echo "<li class='search-title'>Kontakter</li>";
+		foreach($hits as $hit) {
+			// echo link if more is found
+			if ($hit["name"] == "more") {
+				echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+			}
+			// echo the hit
+			else {
+				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+				echo ($hit["workplace"] != "")?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
+				echo ($hit["phone"] != "")?"<span class='phone'>" . htmlentities($hit["phone"]) . "</span>":"";
+				echo ($hit["mail"] != "")?"<span class='mail'>" . htmlentities($hit["mail"]) . "</span>":"";
+				echo "</li>";
+			}
 		}
-		else {
-		echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-		echo ($hit["workplace"] != "")?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
-		echo ($hit["phone"] != "")?"<span class='phone'>" . htmlentities($hit["phone"]) . "</span>":"";
-		echo ($hit["mail"] != "")?"<span class='mail'>" . htmlentities($hit["mail"]) . "</span>":"";
-		echo "</li>";
-		}
-	}
-	echo "</ul>";
+		echo "</ul>";
 	endif;
 }
 add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
@@ -62,18 +72,21 @@ add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 /* add tele search in search */
 function hk_pre_search_function($search) {
 	$options = get_option("hk_theme");
+	
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search);
+	
+	// echo if hits found
 	if (count($hits) > 0) :
-	echo "<ul class='search-tele'>";
-	echo "<li class='search-title'>Kontakter</li>";
-	foreach($hits as $hit) {
-		echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-		foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
-			echo ($hit[$item] != "")?"<span class='$item'>" . htmlentities($hit[$item]) . "</span> ":"";
+		echo "<ul class='search-tele'>";
+		echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
+		foreach($hits as $hit) {
+			echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+			foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
+				echo ($hit[$item] != "")?"<span class='$item'>" . htmlentities($hit[$item]) . "</span> ":"";
+			}
+			echo "</li>";
 		}
-		echo "</li>";
-	}
-	echo "</ul>";
+		echo "</ul>";
 	endif;
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
