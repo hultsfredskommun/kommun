@@ -16,13 +16,19 @@ Template: hultsfredskommun
 
 ul.search-tele {
 	margin: 0;
-	padding: 2px 10px;
+	padding: 2px 10px 20px;
 	clear: both;
+	float: left;
 }
 ul.search-tele li {
-	padding: 8px 2px;
+	padding: 8px 0px;
 	clear: both;
 }
+ul.search-tele li span.workplace {
+	font-weight: bold;
+}
+
+ul.search-tele li span.workplace,
 ul.search-tele li span.phone,
 ul.search-tele li span.postaddress,
 ul.search-tele li span.visitaddress {
