@@ -2,7 +2,6 @@
 
 /* get tele search hits */
 function hk_get_tele_search($host, $user, $pwd, $search, $num_hits = -1) {
-	return "";
 	if ($host != "" && $user != "" && $pwd != "" && $select != "")
 		return array('Kan inte kontakta teledatabasen utan r&auml;tt uppgifter.');
 	if (!function_exists("mssql_connect"))
@@ -12,22 +11,22 @@ function hk_get_tele_search($host, $user, $pwd, $search, $num_hits = -1) {
 		return array('<ul class="error-message"><li>Kunde inte kontakta teledatabasen.</li></ul>' . mysql_error());
 	}
 
+	mssql_select_db("TeleSearch");
 	/* get hits */
 	$select = "SELECT * FROM entire_directory WHERE " .
-	"name LIKE '%$search%' " .
-	"title LIKE '%$search%' " .
-	"workplace LIKE '%$search%' " .
-	"mail LIKE '%$search%' " .
-	"phone LIKE '%$search%' " .
+	"name LIKE '%$search%' OR " .
+	"title LIKE '%$search%' OR " .
+	"workplace LIKE '%$search%' OR " .
+	"mail LIKE '%$search%' OR " .
+	"phone LIKE '%$search%' OR " .
 	"other LIKE '%$search%'";
 	
-	$result = mysql_query($select);
-	$items = array();
-	$count = 0;
-	while ($row = mssql_fetch_assoc($result, MYSQL_NUM)) {
-		if ($num_hits > 0 && $num_hits > $count++)
+	$result = mssql_query($select);
+	$count = 1;
+	while ($row = mssql_fetch_assoc($result)) {
+		if ($num_hits > 0 && $num_hits < $count++)
 			break;
-		$items[] = array($row["title"], $row["workplace"], $row["phone"]);  
+		$items[] = array($row["name"], $row["title"], $row["workplace"], $row["phone"]);  
 	}
 	
 	mssql_close($link);
@@ -40,7 +39,7 @@ function hk_pre_ajax_search_function($search) {
 	$options = get_option("hk_theme");
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $search);
 	//print_r($hits);
-	//echo "F&ouml;re ajax s&ouml;k! S&ouml;kte p&aring; " . $search;
+	//echo $options["tele_db_host"] . "F&ouml;re ajax s&ouml;k! S&ouml;kte p&aring; " . $search;
 }
 add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 
@@ -48,8 +47,14 @@ add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 function hk_pre_search_function($search) {
 	$options = get_option("hk_theme");
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $search);
-	//print_r($hits);
-	//echo "F&ouml;re s&ouml;k! S&ouml;kte p&aring; " . $search;
+	echo "<ul>";
+	foreach($hits as $hit) {
+		echo "<li><span class='name'>" . htmlentities($hit[0]) . "</span> ".
+		"<span class='title'>" . htmlentities($hit[1]) . "</span> " .
+		"<span class='workplace'>" . htmlentities($hit[2]) . "</span> ".
+		"<span class='phone'>" . htmlentities($hit[3]) . "</span></li>";
+	}
+	echo "</ul>";
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
 
