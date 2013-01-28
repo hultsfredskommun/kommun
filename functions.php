@@ -14,12 +14,11 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	mssql_select_db($db);
 	/* get hits */
 	$select = "SELECT * FROM entire_directory WHERE " .
-	"(name LIKE '%$search%' OR " .
+	"name LIKE '%$search%' OR " .
 	"title LIKE '%$search%' OR " .
 	"workplace LIKE '%$search%' OR " .
 	"mail LIKE '%$search%' OR " .
-	"phone LIKE '%$search%') AND " .
-	"other != '-'";
+	"phone LIKE '%$search%'";
 	
 	$result = mssql_query($select);
 	$count = 1;
@@ -29,7 +28,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 		$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phone" => $row["phone"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
 	}
 	if ($num_hits > 0 && $num_hits < $count-1)
-		$items[] = array("name" => '<a href="/?s=' . $search . '">S&ouml; efter fler kontakter</a>');
+		$items[] = array("name" => 'more');
 	
 	mssql_close($link);
 	
@@ -40,16 +39,23 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 function hk_pre_ajax_search_function($search) {
 	$options = get_option("hk_theme");
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 5);
+	if (count($hits) > 0) :
 	echo "<ul class='search-tele'>";
 	echo "<li class='search-title'>Kontakter</li>";
 	foreach($hits as $hit) {
+		if ($hit["name"] == "more") {
+			echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+		}
+		else {
 		echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
 		echo ($hit["workplace"] != "")?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
 		echo ($hit["phone"] != "")?"<span class='phone'>" . htmlentities($hit["phone"]) . "</span>":"";
 		echo ($hit["mail"] != "")?"<span class='mail'>" . htmlentities($hit["mail"]) . "</span>":"";
 		echo "</li>";
+		}
 	}
 	echo "</ul>";
+	endif;
 }
 add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 
@@ -57,6 +63,7 @@ add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 function hk_pre_search_function($search) {
 	$options = get_option("hk_theme");
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search);
+	if (count($hits) > 0) :
 	echo "<ul class='search-tele'>";
 	echo "<li class='search-title'>Kontakter</li>";
 	foreach($hits as $hit) {
@@ -67,6 +74,7 @@ function hk_pre_search_function($search) {
 		echo "</li>";
 	}
 	echo "</ul>";
+	endif;
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
 
