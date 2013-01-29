@@ -4,14 +4,14 @@
 function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	// error check
 	if ($host != "" && $user != "" && $db != "" && $pwd != "" && $select != "")
-		return array("name" => 'Kan inte kontakta teledatabasen utan r&auml;tt uppgifter.');
+		return array(array("error" => 'Kan inte kontakta teledatabasen utan r&auml;tt uppgifter.'));
 	if (!function_exists("mssql_connect"))
-		return array("name" => 'Det m&aring;ste finnas mssql i PHP f&ouml;r s&ouml;ka i teledatabasen.');
+		return array(array("error" => 'Det m&aring;ste finnas mssql i PHP f&ouml;r s&ouml;ka i teledatabasen.'));
 	
 	// try to connect
 	$link = mssql_connect($host, $user, $pwd);
 	if (!$link) {
-		return array('Kunde inte kontakta teledatabasen.', mysql_error(),"","");
+		return array(array("error" => 'Kunde inte kontakta teledatabasen. Fel: ' . mysql_error()));
 	}
 
 	mssql_select_db($db);
@@ -51,17 +51,22 @@ function hk_pre_ajax_search_function($search) {
 		echo "<ul class='search-tele'>";
 		echo "<li class='search-title'>Kontakter</li>";
 		foreach($hits as $hit) {
-			// echo link if more is found
-			if ($hit["name"] == "more") {
-				echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+			if (!empty($hit["error"])) {
+				echo "<li><span class='error'>" . $hit["error"] . "</span></li>";
 			}
-			// echo the hit
-			else {
-				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-				echo ($hit["workplace"] != "")?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
-				echo ($hit["phone"] != "")?"<span class='phone'>" . htmlentities($hit["phone"]) . "</span>":"";
-				echo ($hit["mail"] != "")?"<span class='mail'>" . htmlentities($hit["mail"]) . "</span>":"";
-				echo "</li>";
+			if (!empty($hit["name"])) {
+				// echo link if more is found
+				if ($hit["name"] == "more") {
+					echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+				}
+				// echo the hit
+				else {
+					echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+					echo (!empty($hit["workplace"]))?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
+					echo (!empty($hit["phone"]))?"<span class='phone'>" . htmlentities($hit["phone"]) . "</span>":"";
+					echo (!empty($hit["mail"]))?"<span class='mail'>" . htmlentities($hit["mail"]) . "</span>":"";
+					echo "</li>";
+				}
 			}
 		}
 		echo "</ul>";
@@ -73,18 +78,26 @@ add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 function hk_pre_search_function($search) {
 	$options = get_option("hk_theme");
 	
-	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search);
+	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 10);
 	
 	// echo if hits found
 	if (count($hits) > 0) :
 		echo "<ul class='search-tele'>";
 		echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
 		foreach($hits as $hit) {
-			echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-			foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
-				echo ($hit[$item] != "")?"<span class='$item'>" . htmlentities($hit[$item]) . "</span> ":"";
+			// echo link if more is found
+			if ($hit["name"] == "more") {
+				echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
 			}
-			echo "</li>";
+			// echo the hit
+			else {
+
+				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+				foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
+					echo ($hit[$item] != "")?"<span class='$item'>" . htmlentities($hit[$item]) . "</span> ":"";
+				}
+				echo "</li>";
+			}
 		}
 		echo "</ul>";
 	endif;
