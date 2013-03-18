@@ -16,6 +16,9 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 
 	mssql_select_db($db);
 	
+	//fix encoding
+	$search = mb_convert_encoding($search, "ISO-8859-1");
+
 	// do the search
 	$select = "SELECT * FROM entire_directory WHERE " .
 	"name LIKE '%$search%' OR " .
@@ -26,6 +29,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	
 	$result = mssql_query($select);
 	$count = 1;
+	
 	// make array to return
 	while ($row = mssql_fetch_assoc($result)) {
 		if ($num_hits > 0 && $num_hits < $count++)
