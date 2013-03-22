@@ -13,3 +13,16 @@ Template: hultsfredskommun
 */
 
 @import url("../hultsfredskommun/style.css");
+
+/* Search results styling */
+.search-tele {
+  margin-left: 0;
+}
+.search-tele > li {
+  list-style: none;
+  padding: 7px;
+  line-height: 1.3em;
+}
+.search-tele > li:nth-child(2n+2) {
+  background: rgb(236, 236, 236);
+}
