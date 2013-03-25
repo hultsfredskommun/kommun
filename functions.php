@@ -100,6 +100,7 @@ function hk_pre_search_function($search) {
 				foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
 					if ($hit[$item] != "") :
 						echo "<span class='$item'>";
+						$pre = '';
 						if ($item == 'phone')
 							$pre = 'tel:';
 						elseif ($item == 'mail')
