@@ -67,8 +67,8 @@ function hk_pre_ajax_search_function($search) {
 				else {
 					echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
 					echo (!empty($hit["workplace"]))?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
-					echo (!empty($hit["phone"]))?"<span class='phone'>" . htmlentities($hit["phone"]) . "</span>":"";
-					echo (!empty($hit["mail"]))?"<span class='mail'>" . htmlentities($hit["mail"]) . "</span>":"";
+					echo (!empty($hit["phone"]))?"<span class='phone'><a href='tel:" . htmlentities($hit["phone"]) . "'>" . htmlentities($hit["phone"]) . "</a></span>":"";
+					echo (!empty($hit["mail"]))?"<span class='mail'><a href='mailto:" . htmlentities($hit["mail"]) . "'>" . htmlentities($hit["mail"]) . "</a></span>":"";
 					echo "</li>";
 				}
 			}
@@ -98,7 +98,21 @@ function hk_pre_search_function($search) {
 
 				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
 				foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
-					echo ($hit[$item] != "")?"<span class='$item'>" . htmlentities($hit[$item]) . "</span> ":"";
+					if ($hit[$item] != "") :
+						echo "<span class='$item'>";
+						if ($item == 'phone')
+							$pre = 'tel:';
+						elseif ($item == 'mail')
+							$pre = 'mailto:';
+						if ($pre != '')
+							echo "<a href='%pre" . htmlentities($hit[$item]) . ">";						
+						echo htmlentities($hit[$item]);
+						if ($pre != '')
+							echo "</a>";
+
+						echo "</span> ";
+					endif;
+					
 				}
 				echo "</li>";
 			}

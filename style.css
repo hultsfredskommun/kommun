@@ -26,3 +26,6 @@ Template: hultsfredskommun
 .search-tele > li:nth-child(2n+2) {
   background: rgb(236, 236, 236);
 }
+.search-tele > li  > span {
+	display: block;
+}
