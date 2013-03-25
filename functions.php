@@ -105,7 +105,7 @@ function hk_pre_search_function($search) {
 						elseif ($item == 'mail')
 							$pre = 'mailto:';
 						if ($pre != '')
-							echo "<a href='%pre" . htmlentities($hit[$item]) . ">";						
+							echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";	
 						echo htmlentities($hit[$item]);
 						if ($pre != '')
 							echo "</a>";
