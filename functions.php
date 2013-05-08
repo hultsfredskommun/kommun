@@ -66,6 +66,7 @@ function hk_pre_ajax_search_function($search) {
 				// echo the hit
 				else {
 					echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+					echo (!empty($hit["title"]))?"<span class='title'>" . htmlentities($hit["title"]) . "</span> ":"";
 					echo (!empty($hit["workplace"]))?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
 					echo (!empty($hit["phone"]))?"<span class='phone'><a href='tel:" . htmlentities($hit["phone"]) . "'>" . htmlentities($hit["phone"]) . "</a></span>":"";
 					echo (!empty($hit["mail"]))?"<span class='mail'><a href='mailto:" . htmlentities($hit["mail"]) . "'>" . htmlentities($hit["mail"]) . "</a></span>":"";
@@ -81,41 +82,50 @@ add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
 /* add tele search in search */
 function hk_pre_search_function($search) {
 	$options = get_option("hk_theme");
-	
-	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 10);
+	$count = 10;
+	if (!empty($_REQUEST["numtele"]))
+		$count = $_REQUEST["numtele"];
+	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, $count);
 	
 	// echo if hits found
 	if (count($hits) > 0) :
 		echo "<ul class='search-tele'>";
-		echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
-		foreach($hits as $hit) {
-			// echo link if more is found
-			if ($hit["name"] == "more") {
-				echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
-			}
-			// echo the hit
-			else {
+		if ($hit["name"] == "more") {
+			echo "<li><a href='/?s=$search&numtele=1000'>S&ouml;k efter alla kontakter</a></li>";
+		}
+		// echo the hit
+		else {
 
-				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-				foreach(array("workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
-					if ($hit[$item] != "") :
-						echo "<span class='$item'>";
-						$pre = '';
-						if ($item == 'phone')
-							$pre = 'tel:';
-						elseif ($item == 'mail')
-							$pre = 'mailto:';
-						if ($pre != '')
-							echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";	
-						echo htmlentities($hit[$item]);
-						if ($pre != '')
-							echo "</a>";
-
-						echo "</span> ";
-					endif;
-					
+			echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
+			foreach($hits as $hit) {
+				// echo link if more is found
+				if ($hit["name"] == "more") {
+					echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
 				}
-				echo "</li>";
+				// echo the hit
+				else {
+
+					echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+					foreach(array("title","workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
+						if ($hit[$item] != "") :
+							echo "<span class='$item'>";
+							$pre = '';
+							if ($item == 'phone')
+								$pre = 'tel:';
+							elseif ($item == 'mail')
+								$pre = 'mailto:';
+							if ($pre != '')
+								echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";	
+							echo htmlentities($hit[$item]);
+							if ($pre != '')
+								echo "</a>";
+
+							echo "</span> ";
+						endif;
+						
+					}
+					echo "</li>";
+				}
 			}
 		}
 		echo "</ul>";
