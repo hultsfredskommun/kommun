@@ -90,42 +90,37 @@ function hk_pre_search_function($search) {
 	// echo if hits found
 	if (count($hits) > 0) :
 		echo "<ul class='search-tele'>";
-		if ($hit["name"] == "more") {
-			echo "<li><a href='/?s=$search&numtele=1000'>S&ouml;k efter alla kontakter</a></li>";
-		}
-		// echo the hit
-		else {
 
-			echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
-			foreach($hits as $hit) {
-				// echo link if more is found
-				if ($hit["name"] == "more") {
-					echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
+		echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
+		foreach($hits as $hit) {
+			// echo link if more is found
+			if ($hit["name"] == "more") {
+				//echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
+				echo "<li><a href='/?s=$search&numtele=1000'>S&ouml;k efter alla kontakter</a></li>";
+			}
+			// echo the hit
+			else {
+
+				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+				foreach(array("title","workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
+					if ($hit[$item] != "") :
+						echo "<span class='$item'>";
+						$pre = '';
+						if ($item == 'phone')
+							$pre = 'tel:';
+						elseif ($item == 'mail')
+							$pre = 'mailto:';
+						if ($pre != '')
+							echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";	
+						echo htmlentities($hit[$item]);
+						if ($pre != '')
+							echo "</a>";
+
+						echo "</span> ";
+					endif;
+					
 				}
-				// echo the hit
-				else {
-
-					echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-					foreach(array("title","workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
-						if ($hit[$item] != "") :
-							echo "<span class='$item'>";
-							$pre = '';
-							if ($item == 'phone')
-								$pre = 'tel:';
-							elseif ($item == 'mail')
-								$pre = 'mailto:';
-							if ($pre != '')
-								echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";	
-							echo htmlentities($hit[$item]);
-							if ($pre != '')
-								echo "</a>";
-
-							echo "</span> ";
-						endif;
-						
-					}
-					echo "</li>";
-				}
+				echo "</li>";
 			}
 		}
 		echo "</ul>";
