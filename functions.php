@@ -27,18 +27,22 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	"mail LIKE '%$search%' OR " .
 	"phone LIKE '%$search%'";
 	
-	$result = mssql_query($select);
 	$count = 1;
-	
-	// make array to return
-	while ($row = mssql_fetch_assoc($result)) {
-		if ($num_hits > 0 && $num_hits < $count++)
-			break;
-		$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phone" => $row["phone"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
+	$result = mssql_query($select);
+	if (!$result || mssql_num_rows($query) == 0) {
+		$items[] = array();
 	}
-	if ($num_hits > 0 && $num_hits < $count-1)
-		$items[] = array("name" => 'more');
-	
+	else
+    {	
+		// make array to return
+		while ($row = mssql_fetch_assoc($result)) {
+			if ($num_hits > 0 && $num_hits < $count++)
+				break;
+			$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phone" => $row["phone"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
+		}
+		if ($num_hits > 0 && $num_hits < $count-1)
+			$items[] = array("name" => 'more');
+	}	
 	mssql_close($link);
 	
 	return $items;
