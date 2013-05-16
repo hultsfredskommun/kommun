@@ -49,7 +49,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 }
 
 /* add tele search in ajax dropdown */
-function hk_pre_ajax_search_function($search) {
+function hk_ajax_search_function($search) {
 	$options = get_option("hk_theme");
 	
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 3);
@@ -81,7 +81,7 @@ function hk_pre_ajax_search_function($search) {
 		echo "</ul>";
 	endif;
 }
-add_action('hk_pre_ajax_search','hk_pre_ajax_search_function',1);
+add_action('hk_post_ajax_search','hk_ajax_search_function',1);
 
 /* add tele search in search */
 function hk_pre_search_function($search) {
@@ -93,6 +93,7 @@ function hk_pre_search_function($search) {
 	
 	// echo if hits found
 	if (count($hits) > 0) :
+		echo "<aside class='search-hook'>";
 		echo "<ul class='search-tele'>";
 
 		echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
@@ -128,9 +129,19 @@ function hk_pre_search_function($search) {
 			}
 		}
 		echo "</ul>";
+		echo "</aside>";
 	endif;
+	
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
+
+function hk_post_search_function($search) {
+	echo "<aside class='post-search-hook'>";
+	echo "<gcse:searchresults-only></gcse:searchresults-only>";
+	echo "</aside>";
+}
+add_action('hk_post_search','hk_post_search_function',1);
+
 
 /* add tele search database options */
 function hk_option_function($options) { ?>
