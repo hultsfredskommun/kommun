@@ -29,7 +29,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	
 	$count = 1;
 	$result = mssql_query($select);
-	if (!$result || mssql_num_rows($query) == 0) {
+	if (!$result || mssql_num_rows($result) == 0) {
 		$items[] = array();
 	}
 	else
