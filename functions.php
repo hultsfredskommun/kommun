@@ -20,11 +20,12 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	$search = mb_convert_encoding($search, "ISO-8859-1");
 
 	// do the search
-	$select = "SELECT * FROM entire_directory WHERE " .
-	"name LIKE '%$search%' OR " .
+	$select = "SELECT * FROM telesok WHERE " .
+	"firstname LIKE '%$search%' OR " .
+	"lastname LIKE '%$search%' OR " .
 	"title LIKE '%$search%' OR " .
-	"workplace LIKE '%$search%' OR " .
-	"mail LIKE '%$search%' OR " .
+	"organisation LIKE '%$search%' OR " .
+	"email LIKE '%$search%' OR " .
 	"phone LIKE '%$search%'";
 	
 	$count = 1;
@@ -38,7 +39,8 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 		while ($row = mssql_fetch_assoc($result)) {
 			if ($num_hits > 0 && $num_hits < $count++)
 				break;
-			$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phone" => $row["phone"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
+			//$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
+			$items[] = array("name" => $row["firstname"] . " " . $row["lastname"], "title" => $row["title"], "workplace" => $row["organisation"], "phone" => $row["phone"], "mail" => $row["email"], "postaddress" => $row["post_address"], "visitaddress" => $row["visit_address"]);  
 		}
 		if ($num_hits > 0 && $num_hits < $count-1)
 			$items[] = array("name" => 'more');
@@ -107,7 +109,7 @@ function hk_pre_search_function($search) {
 			else {
 
 				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-				foreach(array("title","workplace","phone","phonetime","mail", "postaddress", "visitaddress") as $item) {
+				foreach(array("title","workplace","phone","mail", "postaddress", "visitaddress") as $item) {
 					if ($hit[$item] != "") :
 						echo "<span class='$item'>";
 						$pre = '';
@@ -137,6 +139,7 @@ add_action('hk_pre_search','hk_pre_search_function',1);
 
 function hk_post_search_function($search) {
 	echo "<aside class='post-search-hook'>";
+	echo "<h2 class='post-search-title'></h2>";
 	echo "<gcse:searchresults-only></gcse:searchresults-only>";
 	echo "</aside>";
 }
