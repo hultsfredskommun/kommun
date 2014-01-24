@@ -54,7 +54,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 function hk_ajax_search_function($search) {
 	$options = get_option("hk_theme");
 	
-	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 3);
+	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 15);
 	
 	// echo if hits found
 	if (count($hits) > 0) :
@@ -67,7 +67,8 @@ function hk_ajax_search_function($search) {
 			if (!empty($hit["name"])) {
 				// echo link if more is found
 				if ($hit["name"] == "more") {
-					echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+					echo "<li>Det finns fler tr&auml;ffar. F&ouml;frina din s&ouml;kning om du inte hittar r&auml;tt.</li>";
 				}
 				// echo the hit
 				else {
