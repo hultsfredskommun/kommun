@@ -68,7 +68,7 @@ function hk_ajax_search_function($search) {
 				// echo link if more is found
 				if ($hit["name"] == "more") {
 					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
-					echo "<li>Det finns fler tr&auml;ffar. F&ouml;frina din s&ouml;kning om du inte hittar r&auml;tt.</li>";
+					echo "<li>Det finns fler tr&auml;ffar. F&ouml;rfina din s&ouml;kning om du inte hittar r&auml;tt.</li>";
 				}
 				// echo the hit
 				else {
