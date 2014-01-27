@@ -18,20 +18,28 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	
 	//fix encoding
 	$search = mb_convert_encoding($search, "ISO-8859-1");
-
+	$search = explode(" ",$search);
+	
 	// do the search
-	$select = "SELECT * FROM telesok WHERE " .
-	"firstname LIKE '%$search%' OR " .
-	"lastname LIKE '%$search%' OR " .
-	"title LIKE '%$search%' OR " .
-	"organisation LIKE '%$search%' OR " .
-	"email LIKE '%$search%' OR " .
-	"phone LIKE '%$search%'";
+	$select = "SELECT * FROM telesok WHERE ";
+	
+	foreach ($search as $s) {
+		if (trim($s) != "") {
+			$select .= "firstname LIKE '%$s%' OR " .
+				"lastname LIKE '%$s%' OR " .
+				"title LIKE '%$s%' OR " .
+				"organisation LIKE '%$s%' OR " .
+				"email LIKE '%$s%' OR " .
+				"phone LIKE '%$s%' OR ";
+		}
+	}
+	
+	$select .= " 0 = 1";
 	
 	$count = 1;
 	$result = mssql_query($select);
 	if (!$result || mssql_num_rows($result) == 0) {
-		$items[] = array();
+		$items[] = array("name" => 'none');
 	}
 	else
     {	
@@ -69,6 +77,10 @@ function hk_ajax_search_function($search) {
 				if ($hit["name"] == "more") {
 					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
 					echo "<li>Det finns fler tr&auml;ffar. F&ouml;rfina din s&ouml;kning om du inte hittar r&auml;tt.</li>";
+				}
+				if ($hit["name"] == "none") {
+					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+					echo "<li>Det inga tr&auml;ffar. &Auml; din s&ouml;kning om du inte hittar r&auml;tt.</li>";
 				}
 				// echo the hit
 				else {
