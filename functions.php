@@ -20,9 +20,8 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	$search = mb_convert_encoding($search, "ISO-8859-1");
 	$search = explode(" ",$search);
 	
-	// do the search
+	// do the search with and
 	$select = "SELECT * FROM telesok WHERE ";
-	
 	foreach ($search as $s) {
 		if (trim($s) != "") {
 			$select .= "( firstname LIKE '%$s%' OR " .
@@ -35,9 +34,28 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	}
 	
 	$select .= " 1 = 1";
-	
+
 	$count = 1;
 	$result = mssql_query($select);
+
+	// try search with or if no result found
+	if (!$result || mssql_num_rows($result) == 0) {
+		$select = "SELECT * FROM telesok WHERE ";
+		foreach ($search as $s) {
+			if (trim($s) != "") {
+				$select .= "firstname LIKE '%$s%' OR " .
+					"lastname LIKE '%$s%' OR " .
+					"title LIKE '%$s%' OR " .
+					"organisation LIKE '%$s%' OR " .
+					"email LIKE '%$s%' OR " .
+					"phone LIKE '%$s%' OR ";
+			}
+		}		
+		$select .= " 1 = 0";
+		$result = mssql_query($select);
+	}
+	
+	// check result
 	if (!$result || mssql_num_rows($result) == 0) {
 		$items[] = array("name" => 'none');
 	}
