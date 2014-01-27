@@ -25,16 +25,16 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	
 	foreach ($search as $s) {
 		if (trim($s) != "") {
-			$select .= "firstname LIKE '%$s%' OR " .
+			$select .= "( firstname LIKE '%$s%' OR " .
 				"lastname LIKE '%$s%' OR " .
 				"title LIKE '%$s%' OR " .
 				"organisation LIKE '%$s%' OR " .
 				"email LIKE '%$s%' OR " .
-				"phone LIKE '%$s%' OR ";
+				"phone LIKE '%$s%' ) AND ";
 		}
 	}
 	
-	$select .= " 0 = 1";
+	$select .= " 1 = 1";
 	
 	$count = 1;
 	$result = mssql_query($select);
