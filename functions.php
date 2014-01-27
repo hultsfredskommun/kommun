@@ -80,7 +80,7 @@ function hk_ajax_search_function($search) {
 				}
 				if ($hit["name"] == "none") {
 					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
-					echo "<li>Det inga tr&auml;ffar. &Auml; din s&ouml;kning om du inte hittar r&auml;tt.</li>";
+					echo "<li>Det inga tr&auml;ffar. &Auml;ndra din s&ouml;kning om du inte hittar r&auml;tt.</li>";
 				}
 				// echo the hit
 				else {
