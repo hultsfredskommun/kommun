@@ -168,13 +168,6 @@ function hk_pre_search_function($search) {
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
 
-function hk_post_search_function($search) {
-	echo "<aside class='post-search-hook'>";
-	echo "<h2 class='post-search-title'></h2>";
-	echo "<gcse:searchresults-only></gcse:searchresults-only>";
-	echo "</aside>";
-}
-add_action('hk_post_search','hk_post_search_function',1);
 
 
 /* add tele search database options */
