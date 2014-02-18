@@ -128,13 +128,27 @@ function hk_pre_search_function($search) {
 	if (count($hits) > 0) :
 		echo "<aside class='search-hook'>";
 		echo "<ul class='search-tele'>";
-
-		echo "<li class='search-title'><h1 class='entry-title'>Kontakter</h1></li>";
+		if ($hits[0]["name"] == "none" || $hits[0]["error"] != "") {
+			$num_text = " (0)";
+		}
+		else if ($hits[count($hits)-1]["name"] == "more") {
+			$num_text = " ( &gt; " . (count($hits) - 1) . ")";
+		}
+		else {
+			$num_text = " (" . count($hits) . ")";
+		}
+		echo "<li class='search-title'><h1 class='entry-title js-toggle-search-contacts'>Kontakter$num_text</h1></li>";
 		foreach($hits as $hit) {
 			// echo link if more is found
 			if ($hit["name"] == "more") {
 				//echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
 				echo "<li><a href='/?s=$search&numtele=1000'>S&ouml;k efter alla kontakter</a></li>";
+			}
+			else if ($hit["name"] == "none") {
+				echo "<li>Hittade inga kontakter</li>";
+			}
+			else if ($hit["error"] != "") {
+				echo "<li>" . $hit["error"] . "</li>";
 			}
 			// echo the hit
 			else {
@@ -168,6 +182,42 @@ function hk_pre_search_function($search) {
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
 
+
+function hk_custom_js() { ?>
+    <script type="text/javascript">
+	
+	jQuery(document).ready(function($) {
+		if (typeof responsive_lap_start == 'undefined') responsive_lap_start = 541;
+		if (typeof scrollbar == 'undefined') scrollbar = $.browser.webkit ? 0 : 17;
+		
+		if( $(window).width()+scrollbar < responsive_lap_start ){
+			toggleTeleResult();
+			$("#primary").prepend("<h1 class='search-title'>S&ouml;kresultat</h1>");
+			$(".js-toggle-search-contacts").css("cursor","pointer").append(" <span class='toggle-search-expander'>+</span>");
+		}
+		$(".js-toggle-search-contacts").css("cursor","pointer").click(function() {
+			toggleTeleResult();
+		});
+		function toggleTeleResult() {
+			if ($(".toggle-search-expander").html() == "+") {
+				$(".toggle-search-expander").html("-");
+			}
+			else {
+				$(".toggle-search-expander").html("+");
+			}
+			$(".search-tele li").each( function() {
+				if (!$(this).hasClass("search-title")) {
+					$(this).toggle();
+				}
+			});
+
+		}
+	});
+</script>
+<?php
+}
+// Add hook for front-end <head></head>
+add_action('wp_head', 'hk_custom_js');
 
 
 /* add tele search database options */
