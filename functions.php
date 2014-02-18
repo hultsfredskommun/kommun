@@ -33,7 +33,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 		}
 	}
 	
-	$select .= " 1 = 1 ORDER BY lastname";
+	$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000)";
 
 	$count = 1;
 	$result = mssql_query($select);
@@ -51,7 +51,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 					"phone LIKE '%$s%' OR ";
 			}
 		}		
-		$select .= " 1 = 0 ORDER BY lastname";
+		$select .= " 1 = 0 ORDER BY CAST([lastname] AS NVARCHAR(4000)";
 		$result = mssql_query($select);
 	}
 	
