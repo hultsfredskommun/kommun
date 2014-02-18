@@ -33,7 +33,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 		}
 	}
 	
-	$select .= " 1 = 1";
+	$select .= " 1 = 1 ORDER BY lastname";
 
 	$count = 1;
 	$result = mssql_query($select);
@@ -51,7 +51,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 					"phone LIKE '%$s%' OR ";
 			}
 		}		
-		$select .= " 1 = 0";
+		$select .= " 1 = 0 ORDER BY lastname";
 		$result = mssql_query($select);
 	}
 	
@@ -154,7 +154,7 @@ function hk_pre_search_function($search) {
 			else {
 
 				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
-				foreach(array("title","workplace","phone","mail", "postaddress", "visitaddress") as $item) {
+				foreach(array("title","workplace","phone","mail") as $item) {
 					if ($hit[$item] != "") :
 						echo "<span class='$item'>";
 						$pre = '';

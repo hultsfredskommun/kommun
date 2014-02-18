@@ -29,3 +29,9 @@ Template: hultsfredskommun
 .search-tele > li  > span {
 	display: block;
 }
+.search-tele .name {
+	font-weight: bold;
+}
+.search-tele .title {
+	font-style: italic;
+}
