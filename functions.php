@@ -187,30 +187,32 @@ function hk_custom_js() { ?>
     <script type="text/javascript">
 	
 	jQuery(document).ready(function($) {
-		if (typeof responsive_lap_start == 'undefined') responsive_lap_start = 541;
-		if (typeof scrollbar == 'undefined') scrollbar = $.browser.webkit ? 0 : 17;
-		
-		if( $(window).width()+scrollbar < responsive_lap_start ){
-			toggleTeleResult();
-			$("#primary").prepend("<h1 class='search-title'>S&ouml;kresultat</h1>");
-			$(".js-toggle-search-contacts").css("cursor","pointer").append(" <span class='toggle-search-expander'>+</span>");
-		}
-		$(".js-toggle-search-contacts").css("cursor","pointer").click(function() {
-			toggleTeleResult();
-		});
-		function toggleTeleResult() {
-			if ($(".toggle-search-expander").html() == "+") {
-				$(".toggle-search-expander").html("-");
+		if ($("body").hasClass("search")) {
+			if (typeof responsive_lap_start == 'undefined') responsive_lap_start = 541;
+			if (typeof scrollbar == 'undefined') scrollbar = $.browser.webkit ? 0 : 17;
+			
+			if( $(window).width()+scrollbar < responsive_lap_start ){
+				toggleTeleResult();
+				$("#primary").prepend("<h1 class='search-title'>S&ouml;kresultat</h1>");
+				$(".js-toggle-search-contacts").css("cursor","pointer").append(" <span class='toggle-search-expander'>+</span>");
 			}
-			else {
-				$(".toggle-search-expander").html("+");
-			}
-			$(".search-tele li").each( function() {
-				if (!$(this).hasClass("search-title")) {
-					$(this).toggle();
-				}
+			$(".js-toggle-search-contacts").css("cursor","pointer").click(function() {
+				toggleTeleResult();
 			});
+			function toggleTeleResult() {
+				if ($(".toggle-search-expander").html() == "+") {
+					$(".toggle-search-expander").html("-");
+				}
+				else {
+					$(".toggle-search-expander").html("+");
+				}
+				$(".search-tele li").each( function() {
+					if (!$(this).hasClass("search-title")) {
+						$(this).toggle();
+					}
+				});
 
+			}
 		}
 	});
 </script>
