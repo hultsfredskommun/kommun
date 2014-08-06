@@ -79,16 +79,15 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 /* add tele search in ajax dropdown */
 function hk_ajax_search_function($search) {
 	$options = get_option("hk_theme");
-	
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 15);
 	
 	// echo if hits found
 	if (count($hits) > 0) :
-		echo "<ul class='search-tele'>";
-		echo "<li class='search-title'>Kontakter</li>";
+		echo "<ul class='search-tele js-toggle-search-wrapper'>";
+		echo "<li class='search-title js-toggle-search-hook'>Telefonnummer</li>";
 		foreach($hits as $hit) {
 			if (!empty($hit["error"])) {
-				echo "<li><span class='error'>" . $hit["error"] . "</span></li>";
+				echo "<li class='search-item'><span class='error'>" . $hit["error"] . "</span></li>";
 			}
 			if (!empty($hit["name"])) {
 				// echo link if more is found
@@ -102,7 +101,7 @@ function hk_ajax_search_function($search) {
 				}
 				// echo the hit
 				else {
-					echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+					echo "<li class='search-item'><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
 					echo (!empty($hit["title"]))?"<span class='title'>" . htmlentities($hit["title"]) . "</span> ":"";
 					echo (!empty($hit["workplace"]))?"<span class='workplace'>" . htmlentities($hit["workplace"]) . "</span> ":"";
 					echo (!empty($hit["phone"]))?"<span class='phone'><a href='tel:" . htmlentities($hit["phone"]) . "'>" . htmlentities($hit["phone"]) . "</a></span>":"";
@@ -112,6 +111,8 @@ function hk_ajax_search_function($search) {
 			}
 		}
 		echo "</ul>";
+	else:
+		echo "Inga tr&auml;ffar i teles&ouml;ning.";
 	endif;
 }
 add_action('hk_post_ajax_search','hk_ajax_search_function',1);
@@ -126,7 +127,7 @@ function hk_pre_search_function($search) {
 	
 	// echo if hits found
 	if (count($hits) > 0) :
-		echo "<aside class='search-hook'>";
+		echo "<div class='js-toggle-search-wrapper'>";
 		echo "<ul class='search-tele'>";
 		if ($hits[0]["name"] == "none" || $hits[0]["error"] != "") {
 			$num_text = " (0)";
@@ -137,23 +138,23 @@ function hk_pre_search_function($search) {
 		else {
 			$num_text = " (" . count($hits) . ")";
 		}
-		echo "<li class='search-title'><h1 class='entry-title js-toggle-search-contacts'>Kontakter$num_text</h1></li>";
+		echo "<li class='search-title'><h3 class='entry-title js-toggle-search-hook'>Telefonnummer$num_text</h3></li>";
 		foreach($hits as $hit) {
 			// echo link if more is found
 			if ($hit["name"] == "more") {
 				//echo "<li><span class='more'>Det finns fler kontakter, &auml;ndra din s&ouml;kning om du inte hittar kontakten du s&ouml;ker.</span></li>";
-				echo "<li><a href='/?s=$search&numtele=1000'>S&ouml;k efter alla kontakter</a></li>";
+				echo "<li class='search-item'><a href='/?s=$search&numtele=1000'>S&ouml;k efter alla kontakter</a></li>";
 			}
 			else if ($hit["name"] == "none") {
 				echo "<li>Hittade inga kontakter</li>";
 			}
 			else if ($hit["error"] != "") {
-				echo "<li>" . $hit["error"] . "</li>";
+				echo "<li class='search-item'>" . $hit["error"] . "</li>";
 			}
 			// echo the hit
 			else {
 
-				echo "<li><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
+				echo "<li class='search-item'><span class='name'>" . htmlentities($hit["name"]) . "</span> ";
 				foreach(array("title","workplace","phone","mail") as $item) {
 					if ($hit[$item] != "") :
 						echo "<span class='$item'>";
@@ -176,51 +177,25 @@ function hk_pre_search_function($search) {
 			}
 		}
 		echo "</ul>";
-		echo "</aside>";
+		echo "</div>";
 	endif;
 	
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
 
-
+/*
 function hk_custom_js() { ?>
     <script type="text/javascript">
 	
 	jQuery(document).ready(function($) {
-		if ($("body").hasClass("search")) {
-			if (typeof responsive_lap_start == 'undefined') responsive_lap_start = 541;
-			if (typeof scrollbar == 'undefined') scrollbar = $.browser.webkit ? 0 : 17;
-			
-			if( $(window).width()+scrollbar < responsive_lap_start ){
-				toggleTeleResult();
-				$("#primary").prepend("<h1 class='search-title'>S&ouml;kresultat</h1>");
-				$(".js-toggle-search-contacts").css("cursor","pointer").append(" <span class='toggle-search-expander'>+</span>");
-			}
-			$(".js-toggle-search-contacts").css("cursor","pointer").click(function() {
-				toggleTeleResult();
-			});
-			function toggleTeleResult() {
-				if ($(".toggle-search-expander").html() == "+") {
-					$(".toggle-search-expander").html("-");
-				}
-				else {
-					$(".toggle-search-expander").html("+");
-				}
-				$(".search-tele li").each( function() {
-					if (!$(this).hasClass("search-title")) {
-						$(this).toggle();
-					}
-				});
-
-			}
-		}
+		
 	});
 </script>
 <?php
 }
 // Add hook for front-end <head></head>
 add_action('wp_head', 'hk_custom_js');
-
+*/
 
 /* add tele search database options */
 function hk_option_function($options) { ?>

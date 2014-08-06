@@ -20,7 +20,7 @@ Template: hultsfredskommun
 }
 .search-tele > li {
   list-style: none;
-  padding: 7px;
+  padding: 6px;
   line-height: 1.3em;
 }
 .search-tele > li:nth-child(2n+2) {
