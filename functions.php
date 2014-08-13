@@ -81,8 +81,65 @@ function hk_ajax_search_function($search) {
 	$options = get_option("hk_theme");
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, 15);
 	
+	$count = 10;
+	if (!empty($_REQUEST["numtele"]))
+		$count = $_REQUEST["numtele"];
+		
 	// echo if hits found
-	if (count($hits) > 0) :
+	if (count($hits) > 0 && $hits[0]["name"] != "none") :
+		echo "<div class='js-toggle-search-wrapper'>";
+		$tele_title = "Telefonnummer";
+		if ($options["tele_title"] != "") {
+			$tele_title = $options["tele_title"];
+		}
+		if ($hits[0]["error"] != "") {
+			$num_text = " (fel)";
+		}
+		else if ($hits[count($hits)-1]["name"] == "more") {
+			$num_text = " ( &gt; " . (count($hits) - 1) . ")";
+		}
+		else {
+			$num_text = " (" . count($hits) . ")";
+		}
+		echo "<div class='search-title js-toggle-search-hook'>$tele_title$num_text</div>";
+		foreach($hits as $hit) {
+			echo "<div class='contact-area'>";
+			if (!empty($hit["error"])) {
+				echo "<div class='search-item'><span class='error'>" . $hit["error"] . "</span></div>";
+			}
+			if (!empty($hit["name"])) {
+				// echo link if more is found
+				if ($hit["name"] == "more") {
+					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+					//echo "<div class='search-item'>Det finns fler tr&auml;ffar. F&ouml;rfina din s&ouml;kning om du inte hittar r&auml;tt.</div>";
+					echo "<div class='search-item'><a href='/?s=$search&numtele=1000'>Visa fler tr&auml;ffar...</a></div>";
+				}
+				if ($hit["name"] == "none") {
+					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+					echo "<div>Hittade inga telefonnummer.</div>";
+				}
+				// echo the hit
+				else {
+					$name = htmlentities($hit["name"]);
+					$title = htmlentities($hit["title"]);
+					$workplace = htmlentities($hit["workplace"]);
+					$phone = htmlentities($hit["phone"]);
+					$mail = htmlentities($hit["mail"]);
+					echo "<div class='entry-wrapper contact-wrapper search-item'><div class='entry-content'>";
+					echo "<h3 class='entry-title visible'><span class='contactlink'>$name</span></h3>";
+					echo "<div class='type-hk_kontakter status-publish hentry'>";
+					echo (!empty($title))?"<div class='hk_contact_titel visible'>$title</div>":"";
+					echo (!empty($workplace))?"<div class='hk_contact_workplaces visible'>$workplace</div>":"";
+					echo "<div class='topspace'>";
+					echo (!empty($mail))?"<div class='hk_contact_emails visible'><a href='mailto:$mail'>$mail</a></div>":"";
+					echo (!empty($phone))?"<div class='hk_contact_phones visible'>$phone</div>":"";
+					echo "</div></div></div></div>";
+				}
+			}
+			echo "</div>";
+		}
+		echo "</div>";
+	elseif (false) : //OLD LOOK
 		echo "<ul class='search-tele js-toggle-search-wrapper'>";
 		echo "<li class='search-title js-toggle-search-hook'>Telefonnummer</li>";
 		foreach($hits as $hit) {
@@ -116,8 +173,9 @@ function hk_ajax_search_function($search) {
 	endif;
 }
 add_action('hk_post_ajax_search','hk_ajax_search_function',1);
-
+add_action('hk_pre_search','hk_ajax_search_function',1);
 /* add tele search in search */
+/*
 function hk_pre_search_function($search) {
 	$options = get_option("hk_theme");
 	$count = 10;
@@ -182,7 +240,7 @@ function hk_pre_search_function($search) {
 	
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
-
+*/
 /*
 function hk_custom_js() { ?>
     <script type="text/javascript">
@@ -204,6 +262,8 @@ function hk_option_function($options) { ?>
 	<p><label for="hk_theme[tele_db_user]">Tele anv&auml;ndare</label><br/><input size="80" type="text" name="hk_theme[tele_db_user]" value="<?php echo $options['tele_db_user']; ?>" /></p>
 	<p><label for="hk_theme[tele_db_pwd]">Tele l&ouml;senord</label><br/><input size="80" type="text" name="hk_theme[tele_db_pwd]" value="<?php echo $options['tele_db_pwd']; ?>" /></p>
 	<p><label for="hk_theme[tele_db_db]">Tele databas</label><br/><input size="80" type="text" name="hk_theme[tele_db_db]" value="<?php echo $options['tele_db_db']; ?>" /></p>
+	<p><label for="hk_theme[tele_title]">Rubrik</label><br/><input size="80" type="text" name="hk_theme[tele_title]" value="<?php echo $options['tele_title']; ?>" /></p>
+	
 <?php }
 add_action('hk_options_hook','hk_option_function', 1);
 
