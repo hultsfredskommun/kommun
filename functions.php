@@ -110,12 +110,9 @@ function hk_ajax_search_function($search) {
 			if (!empty($hit["name"])) {
 				// echo link if more is found
 				if ($hit["name"] == "more") {
-					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
-					//echo "<div class='search-item'>Det finns fler tr&auml;ffar. F&ouml;rfina din s&ouml;kning om du inte hittar r&auml;tt.</div>";
 					echo "<div class='search-item'><a href='/?s=$search&numtele=1000'>Visa fler tr&auml;ffar...</a></div>";
 				}
-				if ($hit["name"] == "none") {
-					//echo "<li><a href='/?s=$search'>S&ouml;k efter fler kontakter</a></li>";
+				else if ($hit["name"] == "none") {
 					echo "<div>Hittade inga telefonnummer.</div>";
 				}
 				// echo the hit
