@@ -166,7 +166,7 @@ function hk_ajax_search_function($search) {
 		}
 		echo "</ul>";
 	else:
-		echo "Inga tr&auml;ffar i teles&ouml;ning.";
+		echo "";
 	endif;
 }
 add_action('hk_post_ajax_search','hk_ajax_search_function',1);
