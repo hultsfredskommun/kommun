@@ -79,7 +79,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 /* add tele search in ajax dropdown */
 function hk_ajax_search_function($search) {
 	$options = get_option("hk_theme");
-	$count = 10;
+	$count = 5;
 	if (!empty($_REQUEST["numtele"]))
 		$count = $_REQUEST["numtele"];
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, $count);
