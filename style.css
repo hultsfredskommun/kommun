@@ -12,7 +12,7 @@ Text Domain: hultsfredskommun
 Template: hultsfredskommun
 */
 
-@import url("../hultsfredskommun/style.css");
+@import url("../hultsfredskommun/style.css?version=1.4");
 
 /* Search results styling */
 .search-tele {
