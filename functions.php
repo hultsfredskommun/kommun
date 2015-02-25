@@ -18,26 +18,107 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	
 	//fix encoding
 	$search = mb_convert_encoding($search, "ISO-8859-1");
-	$search = explode(" ",$search);
 	
-	// do the search with and
-	$select = "SELECT * FROM telesok WHERE ";
-	foreach ($search as $s) {
-		if (trim($s) != "") {
-			$select .= "( firstname LIKE '%$s%' OR " .
-				"lastname LIKE '%$s%' OR " .
-				"title LIKE '%$s%' OR " .
-				"organisation LIKE '%$s%' OR " .
-				"email LIKE '%$s%' OR " .
-				"phone LIKE '%$s%' ) AND ";
+	// find phone number first
+	preg_match('/([0-9 -]+)/', $search, $matches);	
+
+	if (count($matches) > 0 && $matches[0] != "") {
+		$match = trim($matches[0]," ");
+		$searchmatch = trim($match,"0 ");
+		$searchmatch = str_replace(" ","",$searchmatch);
+
+		// do the search with and
+		if (trim($searchmatch) != "") {
+			$select = "SELECT * FROM telesok WHERE ";
+			$select .= "( phone LIKE '%$searchmatch%' ) AND ";
+			$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
+			$count = 1;
+			$result = mssql_query($select);
+		}
+	}
+
+	// else try find firstname and lastname
+	if (!$result || mssql_num_rows($result) == 0) {
+
+		preg_match('/([a-zA-Z]+)[ ]+([a-zA-Z]+)/', $search, $matches);
+		if (count($matches) > 1 && $matches[0] != "") {
+			$firstname = trim($matches[1]," ");
+			$lastname = trim($matches[2]," ");
+			// do the search with and
+			if ($firstname != "" && $lastname != "") {
+				$select = "SELECT * FROM telesok WHERE ";
+				$select .= "( firstname LIKE '%$firstname%' AND " .
+					"lastname LIKE '%$lastname%' ) AND ";
+				
+				$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
+				$count = 1;
+				$result = mssql_query($select);
+				// else try find firstname or lastname
+				if (!$result || mssql_num_rows($result) == 0) {
+					$select = "SELECT * FROM telesok WHERE ";
+					$select .= "( firstname LIKE '%$firstname%' OR " .
+						"lastname LIKE '%$lastname%' ) AND ";
+					
+					$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
+					$count = 1;
+					$result = mssql_query($select);
+				}
+			}
+		}
+	}
+	// else try one hit
+	if (!$result || mssql_num_rows($result) == 0) {
+		preg_match('/([a-zA-Z]+)/', $search, $matches);
+		if (count($matches) > 0 && $matches[0] != "") {
+			$firstname = trim($matches[1]," ");
+			// do the search with and
+			if ($firstname != "") {
+				$select = "SELECT * FROM telesok WHERE ";
+				$select .= "( firstname LIKE '%$firstname%' AND " .
+					"lastname LIKE '%$firstname%' ) AND ";
+				
+				$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
+				$count = 1;
+				$result = mssql_query($select);
+				// else try find firstname or lastname
+				if (!$result || mssql_num_rows($result) == 0) {
+					$select = "SELECT * FROM telesok WHERE ";
+					$select .= "( firstname LIKE '%$firstname%' OR " .
+						"lastname LIKE '%$firstname%' ) AND ";
+					
+					$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
+					$count = 1;
+					$result = mssql_query($select);
+				}
+			}
 		}
 	}
 	
-	$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 
-	$count = 1;
-	$result = mssql_query($select);
+	// else try search on each word
+	if (!$result || mssql_num_rows($result) == 0) {
 
+		$search = explode(" ",$search);
+		
+		// do the search with and
+		$select = "SELECT * FROM telesok WHERE ";
+		foreach ($search as $s) {
+			if (trim($s) != "") {
+				$select .= "( firstname LIKE '%$s%' OR " .
+					"lastname LIKE '%$s%' OR " .
+					"title LIKE '%$s%' OR " .
+					"organisation LIKE '%$s%' OR " .
+					"email LIKE '%$s%' OR " .
+					"phone LIKE '%$s%' ) AND ";
+			}
+		}
+		
+		$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
+
+		$count = 1;
+		$result = mssql_query($select);
+	}
+	
 	// try search with or if no result found
 	if (!$result || mssql_num_rows($result) == 0) {
 		$select = "SELECT * FROM telesok WHERE ";
