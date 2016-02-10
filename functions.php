@@ -24,9 +24,8 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 
 	if (count($matches) > 0 && $matches[0] != "") {
 		$match = trim($matches[0]," ");
-		$searchmatch = trim($match,"0 ");
+		$searchmatch = trim($match," ");
 		$searchmatch = str_replace(" ","",$searchmatch);
-
 		// do the search with and
 		if (trim($searchmatch) != "") {
 			$select = "SELECT * FROM telesok WHERE ";
@@ -147,13 +146,14 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 			if ($num_hits > 0 && $num_hits < $count++)
 				break;
 			//$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
+			$row["lastname"] = ($row["lastname"] == "Servicename")?"":$row["lastname"];
 			$items[] = array("name" => $row["firstname"] . " " . $row["lastname"], "title" => $row["title"], "workplace" => $row["organisation"], "phone" => $row["phone"], "mail" => $row["email"], "postaddress" => $row["post_address"], "visitaddress" => $row["visit_address"]);  
+			
 		}
 		if ($num_hits > 0 && $num_hits < $count-1)
 			$items[] = array("name" => 'more');
 	}	
 	mssql_close($link);
-	
 	return $items;
 }
 
@@ -198,11 +198,11 @@ function hk_ajax_search_function($search) {
 				}
 				// echo the hit
 				else {
-					$name = htmlentities($hit["name"]);
-					$title = htmlentities($hit["title"]);
-					$workplace = htmlentities($hit["workplace"]);
-					$phone = htmlentities($hit["phone"]);
-					$mail = htmlentities($hit["mail"]);
+					$name = htmlentities($hit["name"], ENT_IGNORE, "ISO-8859-1");
+					$title = htmlentities($hit["title"], ENT_IGNORE, "ISO-8859-1");
+					$workplace = htmlentities($hit["workplace"], ENT_IGNORE, "ISO-8859-1");
+					$phone = htmlentities($hit["phone"], ENT_IGNORE, "ISO-8859-1");
+					$mail = htmlentities($hit["mail"], ENT_IGNORE, "ISO-8859-1");
 					echo "<div class='entry-wrapper contact-wrapper search-item'><div class='entry-content'>";
 					echo "<h3 class='entry-title visible'><span class='contactlink'>$name</span></h3>";
 					echo "<div class='type-hk_kontakter status-publish hentry'>";
