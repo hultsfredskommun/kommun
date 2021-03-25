@@ -1,26 +1,56 @@
 <?php
 
+// add rek.ai script
+function my_theme_enqueue_styles() {
+    wp_enqueue_script( 'rek-ai', "https://static.rek.ai/a77f7dd7.js");
+}
+add_action( 'wp_enqueue_scripts', 'my_theme_enqueue_styles' );
+
+
 /* do the tele search */
 function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	// error check
-	if ($host != "" && $user != "" && $db != "" && $pwd != "" && $select != "")
+	if (empty($host) || empty($user) || empty($db) || empty($pwd) ) {
 		return array(array("error" => 'Kan inte kontakta teledatabasen utan r&auml;tt uppgifter.'));
-	if (!function_exists("mssql_connect"))
-		return array(array("error" => 'Det m&aring;ste finnas mssql i PHP f&ouml;r s&ouml;ka i teledatabasen.'));
-	
+     }
+    //if (!function_exists("mssql_connect"))
+	//	return array(array("error" => 'Det m&aring;ste finnas mssql i PHP f&ouml;r s&ouml;ka i teledatabasen.'));
 	// try to connect
-	$link = mssql_connect($host, $user, $pwd);
-	if (!$link) {
-		return array(array("error" => 'Kunde inte kontakta teledatabasen. Fel: ' . mysql_error()));
-	}
+	//$link = mssql_connect($host, $user, $pwd);
+	//if (!$link) {
+	//	return array(array("error" => 'Kunde inte kontakta teledatabasen. Fel: ' . mysql_error()));
+	//}
+    //$link = mssql_connect($host, $user, $pwd);
+	//if (!$link) {
+	//	return array(array("error" => 'Kunde inte kontakta teledatabasen. Fel: ' . sqlsrv_errors()));
+	//}
+    //mssql_select_db($db);
 
-	mssql_select_db($db);
-	
+
+    if (!function_exists("sqlsrv_connect"))
+		return array(array("error" => 'Det m&aring;ste finnas sqlsrv_connect i PHP f&ouml;r s&ouml;ka i teledatabasen.'));
+
+    $connectionInfo = array( "Database"=>$db, "UID"=>$user, "PWD"=>$pwd);
+    $conn = sqlsrv_connect( $host, $connectionInfo);
+
+    if( $conn ) {
+    	//return array(array("error" => 'Det m&aring;ste finnas sqlsrv_connect i PHP f&ouml;r s&ouml;ka i teledatabasen.'));
+        //echo "Connection established.<br />";
+    }else{
+        //echo "Connection could not be established.<br />";
+        return array(array("error" => 'Kunde inte ansluta till databas.'));
+        //die( print_r( sqlsrv_errors(), true));
+    }
+
+
+
+	return "";
+
 	//fix encoding
 	$search = mb_convert_encoding($search, "ISO-8859-1");
-	
+
 	// find phone number first
-	preg_match('/([0-9 -]+)/', $search, $matches);	
+	preg_match('/([0-9 -]+)/', $search, $matches);
 
 	if (count($matches) > 0 && $matches[0] != "") {
 		$match = trim($matches[0]," ");
@@ -32,12 +62,14 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 			$select .= "( phone LIKE '%$searchmatch%' ) AND ";
 			$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 			$count = 1;
-			$result = mssql_query($select);
-		}
+            //$result = mssql_query($select);
+            $result = sqlsrv_query( $conn, $select );
+        }
 	}
 
 	// else try find firstname and lastname
-	if (!$result || mssql_num_rows($result) == 0) {
+	//if (!$result || mssql_num_rows($result) == 0) {
+    if (!$result || sqlsrv_num_rows($result) == 0) {
 
 		preg_match('/([a-zA-Z]+)[ ]+([a-zA-Z]+)/', $search, $matches);
 		if (count($matches) > 1 && $matches[0] != "") {
@@ -48,7 +80,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 				$select = "SELECT * FROM telesok WHERE ";
 				$select .= "( firstname LIKE '%$firstname%' AND " .
 					"lastname LIKE '%$lastname%' ) AND ";
-				
+
 				$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 				$count = 1;
 				$result = mssql_query($select);
@@ -57,7 +89,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 					$select = "SELECT * FROM telesok WHERE ";
 					$select .= "( firstname LIKE '%$firstname%' OR " .
 						"lastname LIKE '%$lastname%' ) AND ";
-					
+
 					$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 					$count = 1;
 					$result = mssql_query($select);
@@ -75,7 +107,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 				$select = "SELECT * FROM telesok WHERE ";
 				$select .= "( firstname LIKE '%$firstname%' AND " .
 					"lastname LIKE '%$firstname%' ) AND ";
-				
+
 				$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 				$count = 1;
 				$result = mssql_query($select);
@@ -84,7 +116,7 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 					$select = "SELECT * FROM telesok WHERE ";
 					$select .= "( firstname LIKE '%$firstname%' OR " .
 						"lastname LIKE '%$firstname%' ) AND ";
-					
+
 					$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 					$count = 1;
 					$result = mssql_query($select);
@@ -92,13 +124,13 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 			}
 		}
 	}
-	
+
 
 	// else try search on each word
 	if (!$result || mssql_num_rows($result) == 0) {
 
 		$search = explode(" ",$search);
-		
+
 		// do the search with and
 		$select = "SELECT * FROM telesok WHERE ";
 		foreach ($search as $s) {
@@ -111,13 +143,13 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 					"phone LIKE '%$s%' ) AND ";
 			}
 		}
-		
+
 		$select .= " 1 = 1 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 
 		$count = 1;
 		$result = mssql_query($select);
 	}
-	
+
 	// try search with or if no result found
 	if (!$result || mssql_num_rows($result) == 0) {
 		$select = "SELECT * FROM telesok WHERE ";
@@ -130,29 +162,30 @@ function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 					"email LIKE '%$s%' OR " .
 					"phone LIKE '%$s%' OR ";
 			}
-		}		
+		}
 		$select .= " 1 = 0 ORDER BY CAST([lastname] AS NVARCHAR(4000))";
 		$result = mssql_query($select);
 	}
-	
+
 	// check result
 	if (!$result || mssql_num_rows($result) == 0) {
 		$items[] = array("name" => 'none');
 	}
 	else
-    {	
+    {
 		// make array to return
+        //sqlsrv_fetch_array
 		while ($row = mssql_fetch_assoc($result)) {
 			if ($num_hits > 0 && $num_hits < $count++)
 				break;
-			//$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);  
+			//$items[] = array("name" => $row["name"], "title" => $row["title"], "workplace" => $row["workplace"], "phone" => $row["phone"], "mail" => $row["mail"], "phonetime" => $row["phonetime"], "postaddress" => $row["postaddress"], "visitaddress" => $row["visitaddress"]);
 			$row["lastname"] = ($row["lastname"] == "Servicename")?"":$row["lastname"];
-			$items[] = array("name" => $row["firstname"] . " " . $row["lastname"], "title" => $row["title"], "workplace" => $row["organisation"], "phone" => $row["phone"], "mail" => $row["email"], "postaddress" => $row["post_address"], "visitaddress" => $row["visit_address"]);  
-			
+			$items[] = array("name" => $row["firstname"] . " " . $row["lastname"], "title" => $row["title"], "workplace" => $row["organisation"], "phone" => $row["phone"], "mail" => $row["email"], "postaddress" => $row["post_address"], "visitaddress" => $row["visit_address"]);
+
 		}
 		if ($num_hits > 0 && $num_hits < $count-1)
 			$items[] = array("name" => 'more');
-	}	
+	}
 	mssql_close($link);
 	return $items;
 }
@@ -164,8 +197,8 @@ function hk_ajax_search_function($search) {
 	if (!empty($_REQUEST["numtele"]))
 		$count = $_REQUEST["numtele"];
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, $count);
-	
-		
+
+
 	// echo if hits found
 	if (count($hits) > 0 && $hits[0]["name"] != "none") :
 		echo "<div class='js-toggle-search-wrapper'>";
@@ -250,8 +283,14 @@ function hk_ajax_search_function($search) {
 		echo "";
 	endif;
 }
+
+/* REMOVED 2019-12-23 not working on new server!
 add_action('hk_post_ajax_search','hk_ajax_search_function',1);
 add_action('hk_pre_search','hk_ajax_search_function',1);
+*/
+
+
+
 /* add tele search in search */
 /*
 function hk_pre_search_function($search) {
@@ -260,7 +299,7 @@ function hk_pre_search_function($search) {
 	if (!empty($_REQUEST["numtele"]))
 		$count = $_REQUEST["numtele"];
 	$hits = hk_get_tele_search($options["tele_db_host"], $options["tele_db_user"], $options["tele_db_pwd"], $options["tele_db_db"], $search, $count);
-	
+
 	// echo if hits found
 	if (count($hits) > 0) :
 		echo "<div class='js-toggle-search-wrapper'>";
@@ -300,14 +339,14 @@ function hk_pre_search_function($search) {
 						elseif ($item == 'mail')
 							$pre = 'mailto:';
 						if ($pre != '')
-							echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";	
+							echo "<a href='$pre" . htmlentities($hit[$item]) . "'>";
 						echo htmlentities($hit[$item]);
 						if ($pre != '')
 							echo "</a>";
 
 						echo "</span> ";
 					endif;
-					
+
 				}
 				echo "</li>";
 			}
@@ -315,23 +354,22 @@ function hk_pre_search_function($search) {
 		echo "</ul>";
 		echo "</div>";
 	endif;
-	
+
 }
 add_action('hk_pre_search','hk_pre_search_function',1);
 */
-/*
-function hk_custom_js() { ?>
+
+/*function hk_custom_js() { ?>
     <script type="text/javascript">
-	
 	jQuery(document).ready(function($) {
-		
+
 	});
 </script>
 <?php
 }
 // Add hook for front-end <head></head>
-add_action('wp_head', 'hk_custom_js');
-*/
+add_action('wp_head', 'hk_custom_js');*/
+
 
 /* add tele search database options */
 function hk_option_function($options) { ?>
@@ -341,7 +379,7 @@ function hk_option_function($options) { ?>
 	<p><label for="hk_theme[tele_db_pwd]">Tele l&ouml;senord</label><br/><input size="80" type="text" name="hk_theme[tele_db_pwd]" value="<?php echo $options['tele_db_pwd']; ?>" /></p>
 	<p><label for="hk_theme[tele_db_db]">Tele databas</label><br/><input size="80" type="text" name="hk_theme[tele_db_db]" value="<?php echo $options['tele_db_db']; ?>" /></p>
 	<p><label for="hk_theme[tele_title]">Rubrik</label><br/><input size="80" type="text" name="hk_theme[tele_title]" value="<?php echo $options['tele_title']; ?>" /></p>
-	
+
 <?php }
 add_action('hk_options_hook','hk_option_function', 1);
 
