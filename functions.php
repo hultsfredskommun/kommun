@@ -1,12 +1,5 @@
 <?php
 
-// add rek.ai script
-function my_theme_enqueue_styles() {
-    wp_enqueue_script( 'rek-ai', "https://static.rek.ai/a77f7dd7.js");
-}
-add_action( 'wp_enqueue_scripts', 'my_theme_enqueue_styles' );
-
-
 /* do the tele search */
 function hk_get_tele_search($host, $user, $pwd, $db, $search, $num_hits = -1) {
 	// error check
